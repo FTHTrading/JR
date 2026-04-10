@@ -1,0 +1,44 @@
+[
+  {
+    "id": "JR-0001",
+    "name": "Ascarestayathomemom",
+    "state": "UNKNOWN",
+    "caseType": "family_safety",
+    "urgency": "red",
+    "status": "new",
+    "ownerRole": "intake",
+    "summary": "Pregnant mother with children in potentially unsafe home environment.",
+    "createdAt": "2026-04-10T11:00:00Z",
+    "deadline": "",
+    "packetReady": false,
+    "source": "la.unykorn.org"
+  },
+  {
+    "id": "JR-0002",
+    "name": "Lauren L Edlund",
+    "state": "UNKNOWN",
+    "caseType": "criminal_truancy",
+    "urgency": "red",
+    "status": "in_review",
+    "ownerRole": "advocate",
+    "summary": "Parent charged with contributing to truancy; needs compliance narrative prep.",
+    "createdAt": "2026-04-10T11:05:00Z",
+    "deadline": "",
+    "packetReady": false,
+    "source": "la.unykorn.org"
+  },
+  {
+    "id": "JR-0003",
+    "name": "Anonymous-KS",
+    "state": "KS",
+    "caseType": "housing_eviction",
+    "urgency": "red",
+    "status": "packet_build",
+    "ownerRole": "reviewer",
+    "summary": "Alleged illegal eviction despite payment records.",
+    "createdAt": "2026-04-10T11:10:00Z",
+    "deadline": "",
+    "packetReady": true,
+    "source": "la.unykorn.org"
+  }
+]

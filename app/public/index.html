@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JR Ops Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-a"></div>
+    <div class="bg-orb orb-b"></div>
+
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">UNYKORN // JR</p>
+        <h1>JR Ops Console</h1>
+        <p class="sub">Family-first legal operations with advocate and counsel escalation lanes.</p>
+      </div>
+      <div class="status-chip" id="appStatus">Loading</div>
+    </header>
+
+    <main class="grid">
+      <section class="panel kpis">
+        <h2>Command Center</h2>
+        <div class="kpi-row" id="kpis"></div>
+      </section>
+
+      <section class="panel controls">
+        <h2>Role Filters</h2>
+        <div class="control-row">
+          <label for="role">Role</label>
+          <select id="role">
+            <option value="all">All</option>
+            <option value="intake">Intake</option>
+            <option value="advocate">Advocate</option>
+            <option value="reviewer">Reviewer</option>
+          </select>
+        </div>
+        <div class="control-row">
+          <label for="urgency">Urgency</label>
+          <select id="urgency">
+            <option value="all">All</option>
+            <option value="red">Red</option>
+            <option value="amber">Amber</option>
+            <option value="green">Green</option>
+          </select>
+        </div>
+        <button id="refresh">Refresh View</button>
+      </section>
+
+      <section class="panel lead-form">
+        <h2>Quick Intake</h2>
+        <form id="newLeadForm">
+          <input name="name" placeholder="Lead name" required />
+          <input name="state" placeholder="State (e.g., GA)" />
+          <input name="caseType" placeholder="Case type" required />
+          <select name="urgency">
+            <option value="red">Red</option>
+            <option value="amber">Amber</option>
+            <option value="green">Green</option>
+          </select>
+          <select name="ownerRole">
+            <option value="intake">Intake</option>
+            <option value="advocate">Advocate</option>
+            <option value="reviewer">Reviewer</option>
+          </select>
+          <textarea name="summary" rows="3" placeholder="Situation summary"></textarea>
+          <button type="submit">Create Lead</button>
+        </form>
+      </section>
+
+      <section class="panel leads">
+        <h2>Active Leads</h2>
+        <div id="leadList" class="lead-list"></div>
+      </section>
+    </main>
+
+    <template id="leadCardTemplate">
+      <article class="lead-card">
+        <div class="lead-head">
+          <h3></h3>
+          <span class="badge urgency"></span>
+        </div>
+        <p class="meta"></p>
+        <p class="summary"></p>
+        <div class="actions">
+          <button data-action="packet">Generate Packet</button>
+          <button data-action="status">Mark In Review</button>
+        </div>
+      </article>
+    </template>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>

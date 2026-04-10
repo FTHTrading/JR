@@ -37,6 +37,18 @@ JR/
   README.md
   LICENSE
   .gitignore
+  app/
+    package.json
+    app.config.json
+    data/
+      leads.json
+    src/
+      server.js
+      store.js
+    public/
+      index.html
+      styles.css
+      app.js
   docs/
     architecture/
       system-map.md
@@ -105,6 +117,23 @@ See detailed model in [docs/governance/legal-capability.md](docs/governance/lega
 ## Integrations
 
 - [LA Platform Integration Blueprint](docs/integrations/la-unykorn-org.md)
+
+## JR App
+
+The repository now includes a working application tailored to your operating model:
+
+- Intake role for rapid case capture
+- Advocate role for packet build progression
+- Reviewer role for legal-safe escalation control
+- Lead triage by urgency (red/amber/green)
+- Packet generation endpoint with boundary disclaimers
+
+### Local Run
+
+1. Change directory to `app`
+2. Install dependencies with `npm install`
+3. Start with `npm start`
+4. Open `http://localhost:4099`
 
 ## Runbook
 

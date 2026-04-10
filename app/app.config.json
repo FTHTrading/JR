@@ -1,0 +1,10 @@
+{
+  "appName": "JR Ops Console",
+  "defaultRole": "intake",
+  "laEndpoint": "https://la.unykorn.org/intake",
+  "slaHours": {
+    "red": 6,
+    "amber": 24,
+    "green": 48
+  }
+}
