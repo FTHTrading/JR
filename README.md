@@ -13,6 +13,8 @@ A professional operations and decision-support repository for JR, focused on exe
 - [Repository Layout](#repository-layout)
 - [System Flow (Color-Coded)](#system-flow-color-coded)
 - [Legal Scenario Proficiency](#legal-scenario-proficiency)
+- [Operations Pack](#operations-pack)
+- [Sales Pack](#sales-pack)
 - [Runbook](#runbook)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
@@ -85,6 +87,19 @@ Capability model:
 - Not sufficient alone for jurisdiction-specific legal conclusions, privileged strategy, or final legal advice.
 
 See detailed model in [docs/governance/legal-capability.md](docs/governance/legal-capability.md).
+
+## Operations Pack
+
+- [Family Intake Playbook](docs/ops/family-intake-playbook.md)
+- [Lead Priority Board](docs/ops/lead-priority-board.md)
+- [DM Scripts](docs/templates/dm-scripts.md)
+- [Intake Form](docs/templates/intake-form.md)
+- [CRM Tracker CSV](docs/templates/crm-tracker.csv)
+
+## Sales Pack
+
+- [B2B Lawyer Offer Stack](docs/sales/b2b-lawyer-offer-stack.md)
+- [Landing Page Copy](docs/sales/landing-page-copy.md)
 
 ## Runbook
 
