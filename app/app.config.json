@@ -40,6 +40,15 @@
       "webhookKey": "la-webhook-dev-key"
     }
   },
+  "chain": {
+    "enabled": true,
+    "networkName": "Polygon Mainnet",
+    "chainId": 137,
+    "rpcUrl": "https://polygon-rpc.com",
+    "explorerBaseUrl": "https://polygonscan.com/tx/",
+    "contractAddress": "0x0000000000000000000000000000000000000000",
+    "contractAbiPath": "/abi/CaseAnchor.json"
+  },
   "slaHours": {
     "red": 6,
     "amber": 24,

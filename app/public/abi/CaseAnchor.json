@@ -1,0 +1,27 @@
+{
+  "contractName": "CaseAnchor",
+  "abi": [
+    {
+      "inputs": [
+        { "internalType": "bytes32", "name": "caseIdHash", "type": "bytes32" },
+        { "internalType": "bytes32", "name": "evidenceHash", "type": "bytes32" },
+        { "internalType": "string", "name": "caseType", "type": "string" }
+      ],
+      "name": "anchorCase",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "bytes32", "name": "caseIdHash", "type": "bytes32" },
+        { "indexed": true, "internalType": "bytes32", "name": "evidenceHash", "type": "bytes32" },
+        { "indexed": false, "internalType": "string", "name": "caseType", "type": "string" },
+        { "indexed": false, "internalType": "address", "name": "submitter", "type": "address" }
+      ],
+      "name": "CaseAnchored",
+      "type": "event"
+    }
+  ]
+}

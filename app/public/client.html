@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UNYKORN Client Portal | Polygon Case Anchoring</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/client.css" />
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+  </head>
+  <body>
+    <header class="top">
+      <div>
+        <p class="eyebrow">UNYKORN // CLIENT PORTAL</p>
+        <h1>Client Intake + Polygon On-Chain Case Anchor</h1>
+        <p class="sub">Submit your case, anchor the evidence hash on Polygon, and track status from one portal.</p>
+      </div>
+      <div class="actions">
+        <button id="connectWalletBtn">Connect Wallet</button>
+        <a href="/" class="ghost">Home</a>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="card">
+        <h2>1. Intake Details</h2>
+        <form id="clientIntakeForm" class="form">
+          <input name="firstName" placeholder="First name" required />
+          <input name="lastName" placeholder="Last name" required />
+          <input name="email" type="email" placeholder="Email" required />
+          <input name="phone" placeholder="Phone (optional)" />
+          <select name="caseType" required>
+            <option value="">Select case type</option>
+            <option value="family_safety">Family safety</option>
+            <option value="criminal">Criminal</option>
+            <option value="housing">Housing</option>
+            <option value="civil_rights">Civil rights</option>
+            <option value="post_conviction">Post-conviction</option>
+            <option value="other">Other</option>
+          </select>
+          <input name="deadline" type="date" />
+          <textarea name="summary" rows="5" placeholder="Describe what happened, where, and any urgent deadlines." required></textarea>
+          <button type="submit">Create Case and Prepare On-Chain Anchor</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>2. On-Chain Anchor</h2>
+        <div id="walletState" class="pill">Wallet: Not connected</div>
+        <div id="networkState" class="pill">Network: Unknown</div>
+        <div id="chainState" class="pill">Contract: Not configured</div>
+
+        <div class="meta" id="caseMeta">No case created yet.</div>
+
+        <button id="anchorBtn" disabled>Anchor Case On Polygon</button>
+        <button id="statusBtn" disabled>Refresh Case Status</button>
+
+        <div id="statusPanel" class="status-panel"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Important notice: UNYKORN provides legal advocacy and case-support workflows. It is not a law firm and does not provide legal advice.</p>
+    </footer>
+
+    <script src="/client.js" defer></script>
+  </body>
+</html>

@@ -1,13 +1,24 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 const { readLeads, writeLeads, summarize } = require("./store");
 
 const app = express();
 const PORT = process.env.PORT || 4099;
 const CONFIG_PATH = path.join(__dirname, "..", "app.config.json");
+const CLIENT_CASES_PATH = path.join(__dirname, "..", "data", "client-cases.json");
 
 const config = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8"));
+
+function readClientCases() {
+  const raw = fs.readFileSync(CLIENT_CASES_PATH, "utf8");
+  return JSON.parse(raw);
+}
+
+function writeClientCases(cases) {
+  fs.writeFileSync(CLIENT_CASES_PATH, JSON.stringify(cases, null, 2), "utf8");
+}
 
 function nextLeadId(leads) {
   const max = leads.reduce((highest, lead) => {
@@ -33,6 +44,19 @@ function mapExternalIntake(payload) {
     deadline: p.deadlines_raw || "",
     source: p.lead_source || "la.unykorn.org",
   };
+}
+
+function makeClientCaseId(clientCases) {
+  const max = clientCases.reduce((highest, item) => {
+    const n = Number(String(item.caseId || "").replace("UC-", ""));
+    if (Number.isFinite(n)) return Math.max(highest, n);
+    return highest;
+  }, 0);
+  return `UC-${String(max + 1).padStart(6, "0")}`;
+}
+
+function sha256Hex(input) {
+  return crypto.createHash("sha256").update(input).digest("hex");
 }
 
 function getRoleFromApiKey(req) {
@@ -191,9 +215,127 @@ app.get("/api/config", (req, res) => {
     auth: {
       enabled: Boolean((config.auth || {}).enabled),
     },
+    chain: {
+      enabled: Boolean((config.chain || {}).enabled),
+      networkName: (config.chain || {}).networkName || "Polygon Mainnet",
+      chainId: Number((config.chain || {}).chainId || 137),
+      rpcUrl: (config.chain || {}).rpcUrl || "https://polygon-rpc.com",
+      explorerBaseUrl: (config.chain || {}).explorerBaseUrl || "https://polygonscan.com/tx/",
+      contractAddress: (config.chain || {}).contractAddress || "",
+      contractAbiPath: (config.chain || {}).contractAbiPath || "/abi/CaseAnchor.json",
+    },
     slaHours: config.slaHours,
   };
   res.json(safeConfig);
+});
+
+app.get("/api/chain/config", (req, res) => {
+  const chain = config.chain || {};
+  res.json({
+    enabled: Boolean(chain.enabled),
+    networkName: chain.networkName || "Polygon Mainnet",
+    chainId: Number(chain.chainId || 137),
+    rpcUrl: chain.rpcUrl || "https://polygon-rpc.com",
+    explorerBaseUrl: chain.explorerBaseUrl || "https://polygonscan.com/tx/",
+    contractAddress: chain.contractAddress || "",
+    contractAbiPath: chain.contractAbiPath || "/abi/CaseAnchor.json",
+  });
+});
+
+app.post("/api/public/cases", (req, res) => {
+  const payload = req.body || {};
+  const firstName = String(payload.firstName || "").trim();
+  const lastName = String(payload.lastName || "").trim();
+  const email = String(payload.email || "").trim();
+  const caseType = String(payload.caseType || "unknown").trim();
+  const summary = String(payload.summary || "").trim();
+  const deadline = String(payload.deadline || "").trim();
+
+  if (!firstName || !lastName || !email || !summary) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  const clientCases = readClientCases();
+  const caseId = makeClientCaseId(clientCases);
+  const caseIdHashHex = `0x${sha256Hex(caseId)}`;
+  const evidenceHashHex = `0x${sha256Hex(JSON.stringify({ firstName, lastName, email, caseType, summary, deadline }))}`;
+
+  const item = {
+    caseId,
+    firstName,
+    lastName,
+    email,
+    caseType,
+    summary,
+    deadline,
+    walletAddress: String(payload.walletAddress || "").trim(),
+    caseIdHash: caseIdHashHex,
+    evidenceHash: evidenceHashHex,
+    onChainStatus: "pending_wallet_signature",
+    txHash: "",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  clientCases.unshift(item);
+  writeClientCases(clientCases);
+
+  return res.status(201).json({
+    caseId,
+    caseIdHash: caseIdHashHex,
+    evidenceHash: evidenceHashHex,
+    chain: {
+      chainId: Number((config.chain || {}).chainId || 137),
+      contractAddress: (config.chain || {}).contractAddress || "",
+    },
+  });
+});
+
+app.patch("/api/public/cases/:caseId/tx", (req, res) => {
+  const txHash = String((req.body || {}).txHash || "").trim();
+  const walletAddress = String((req.body || {}).walletAddress || "").trim();
+  const chainId = Number((req.body || {}).chainId || 0);
+
+  if (!txHash) {
+    return res.status(400).json({ error: "txHash is required" });
+  }
+
+  const clientCases = readClientCases();
+  const idx = clientCases.findIndex((item) => item.caseId === req.params.caseId);
+  if (idx === -1) {
+    return res.status(404).json({ error: "Client case not found" });
+  }
+
+  clientCases[idx].txHash = txHash;
+  clientCases[idx].walletAddress = walletAddress || clientCases[idx].walletAddress;
+  clientCases[idx].chainId = chainId || Number((config.chain || {}).chainId || 137);
+  clientCases[idx].onChainStatus = "anchored";
+  clientCases[idx].updatedAt = new Date().toISOString();
+  writeClientCases(clientCases);
+
+  return res.json({
+    caseId: clientCases[idx].caseId,
+    txHash: clientCases[idx].txHash,
+    onChainStatus: clientCases[idx].onChainStatus,
+  });
+});
+
+app.get("/api/public/cases/:caseId", (req, res) => {
+  const clientCases = readClientCases();
+  const item = clientCases.find((row) => row.caseId === req.params.caseId);
+  if (!item) {
+    return res.status(404).json({ error: "Client case not found" });
+  }
+
+  return res.json({
+    caseId: item.caseId,
+    caseType: item.caseType,
+    deadline: item.deadline,
+    onChainStatus: item.onChainStatus,
+    txHash: item.txHash,
+    createdAt: item.createdAt,
+    updatedAt: item.updatedAt,
+  });
 });
 
 app.get("/api/auth/whoami", (req, res) => {
@@ -384,6 +526,10 @@ app.get("/", (req, res) => {
 
 app.get("/ops", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "public", "index.html"));
+});
+
+app.get("/client", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "public", "client.html"));
 });
 
 app.get("*", (req, res) => {

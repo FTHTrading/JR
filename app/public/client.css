@@ -1,0 +1,122 @@
+:root {
+  --ink: #102033;
+  --brand: #153a5a;
+  --accent: #0f766e;
+  --paper: #f6f9fc;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 10% 0%, #caf1e6 0%, transparent 34%),
+    radial-gradient(circle at 85% 10%, #ffe3bf 0%, transparent 34%),
+    var(--paper);
+  padding: 1.2rem;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  color: #254b67;
+}
+
+h1 {
+  margin: 0.3rem 0;
+  font-family: "Playfair Display", serif;
+  font-size: clamp(1.65rem, 3.2vw, 2.8rem);
+  color: #0c2d47;
+}
+
+.sub { margin: 0; color: #2e526a; max-width: 68ch; }
+
+.actions { display: flex; gap: 0.5rem; }
+
+button,
+.ghost {
+  border: 0;
+  border-radius: 10px;
+  padding: 0.6rem 0.8rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+button { background: var(--brand); color: #fff; }
+button:disabled { background: #8aa2b9; cursor: not-allowed; }
+.ghost { background: #fff; border: 1px solid #cbd7e1; color: var(--brand); }
+
+.layout {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 0.9rem;
+}
+
+.card {
+  border: 1px solid #d8e3ed;
+  background: rgba(255,255,255,0.88);
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.card h2 { margin-top: 0; color: #0d3150; }
+
+.form { display: grid; gap: 0.55rem; }
+
+.form input,
+.form select,
+.form textarea {
+  width: 100%;
+  border: 1px solid #c9d5e1;
+  border-radius: 10px;
+  padding: 0.58rem 0.7rem;
+  font: inherit;
+  background: #fff;
+}
+
+.pill {
+  display: inline-block;
+  margin-right: 0.4rem;
+  margin-bottom: 0.45rem;
+  border: 1px solid #d5e3ef;
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  background: #fff;
+  font-size: 0.86rem;
+}
+
+.meta {
+  margin: 0.4rem 0 0.8rem;
+  color: #37566d;
+  font-size: 0.95rem;
+}
+
+.status-panel {
+  margin-top: 0.8rem;
+  border: 1px dashed #bfd1e0;
+  border-radius: 10px;
+  min-height: 80px;
+  padding: 0.65rem;
+  background: #fff;
+  color: #254861;
+}
+
+footer { margin-top: 1rem; color: #4f6578; font-size: 0.86rem; }
+
+@media (max-width: 920px) {
+  .layout { grid-template-columns: 1fr; }
+}

@@ -41,11 +41,17 @@ JR/
     package.json
     app.config.json
     data/
+      client-cases.json
       leads.json
     src/
       server.js
       store.js
     public/
+      client.html
+      client.css
+      client.js
+      abi/
+        CaseAnchor.json
       index.html
       styles.css
       app.js
@@ -136,6 +142,7 @@ The repository now includes a working application tailored to your operating mod
 3. Start with `npm start`
 4. Open `http://localhost:4099` for the public site and Rita
 5. Open `http://localhost:4099/ops` for operations console
+6. Open `http://localhost:4099/client` for client-facing Polygon portal
 
 ### Auth and Integrations
 
@@ -143,6 +150,15 @@ The repository now includes a working application tailored to your operating mod
 - Development keys are in `app/app.config.json` and should be replaced before production use.
 - LA webhook ingestion endpoint: `POST /api/integrations/la/intake` with header `x-la-webhook-key`.
 - Rita server voice endpoint: `POST /api/persona/speak` (browser TTS fallback if server TTS is unavailable).
+
+### Polygon On-Chain Flow
+
+- Client creates intake record with `POST /api/public/cases`.
+- Portal computes case/evidence hashes and anchors via `anchorCase` on Polygon contract.
+- Transaction hash is persisted with `PATCH /api/public/cases/:caseId/tx`.
+- Public case status can be queried via `GET /api/public/cases/:caseId`.
+
+Set your deployed Polygon contract in `app/app.config.json` under `chain.contractAddress`.
 
 ## Runbook
 
