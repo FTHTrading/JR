@@ -338,6 +338,34 @@ app.get("/api/public/cases/:caseId", (req, res) => {
   });
 });
 
+app.post("/api/public/cases/lookup", (req, res) => {
+  const caseId = String((req.body || {}).caseId || "").trim();
+  const email = String((req.body || {}).email || "").trim().toLowerCase();
+
+  if (!caseId || !email) {
+    return res.status(400).json({ error: "caseId and email are required" });
+  }
+
+  const clientCases = readClientCases();
+  const item = clientCases.find(
+    (row) => row.caseId === caseId && String(row.email || "").toLowerCase() === email,
+  );
+
+  if (!item) {
+    return res.status(404).json({ error: "No matching case found" });
+  }
+
+  return res.json({
+    caseId: item.caseId,
+    caseType: item.caseType,
+    deadline: item.deadline,
+    onChainStatus: item.onChainStatus,
+    txHash: item.txHash,
+    updatedAt: item.updatedAt,
+    createdAt: item.createdAt,
+  });
+});
+
 app.get("/api/auth/whoami", (req, res) => {
   const role = getRoleFromApiKey(req);
   if (!role) {

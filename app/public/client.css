@@ -66,6 +66,10 @@ button:disabled { background: #8aa2b9; cursor: not-allowed; }
   gap: 0.9rem;
 }
 
+.full {
+  grid-column: 1 / -1;
+}
+
 .card {
   border: 1px solid #d8e3ed;
   background: rgba(255,255,255,0.88);
@@ -77,6 +81,11 @@ button:disabled { background: #8aa2b9; cursor: not-allowed; }
 
 .form { display: grid; gap: 0.55rem; }
 
+.form.compact {
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  align-items: start;
+}
+
 .form input,
 .form select,
 .form textarea {
@@ -86,6 +95,10 @@ button:disabled { background: #8aa2b9; cursor: not-allowed; }
   padding: 0.58rem 0.7rem;
   font: inherit;
   background: #fff;
+}
+
+.form.compact textarea {
+  grid-column: span 2;
 }
 
 .pill {
@@ -119,4 +132,11 @@ footer { margin-top: 1rem; color: #4f6578; font-size: 0.86rem; }
 
 @media (max-width: 920px) {
   .layout { grid-template-columns: 1fr; }
+  .form.compact {
+    grid-template-columns: 1fr;
+  }
+
+  .form.compact textarea {
+    grid-column: span 1;
+  }
 }

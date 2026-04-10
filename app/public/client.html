@@ -19,6 +19,8 @@
       </div>
       <div class="actions">
         <button id="connectWalletBtn">Connect Wallet</button>
+        <a href="#lookup" class="ghost">Check My Case</a>
+        <a href="#ritaAssist" class="ghost">Rita Assist</a>
         <a href="/" class="ghost">Home</a>
       </div>
     </header>
@@ -58,6 +60,27 @@
         <button id="statusBtn" disabled>Refresh Case Status</button>
 
         <div id="statusPanel" class="status-panel"></div>
+      </section>
+
+      <section id="lookup" class="card full">
+        <h2>3. Check My Case</h2>
+        <form id="lookupForm" class="form compact">
+          <input name="caseId" placeholder="Case ID (example: UC-000123)" required />
+          <input name="email" type="email" placeholder="Email used at intake" required />
+          <button type="submit">Lookup Case Status</button>
+        </form>
+        <div id="lookupPanel" class="status-panel"></div>
+      </section>
+
+      <section id="ritaAssist" class="card full">
+        <h2>4. Rita Intake Assist</h2>
+        <p class="meta">Ask Rita questions about deadlines, missing documents, and next intake steps.</p>
+        <form id="ritaLiteForm" class="form compact">
+          <input name="clientName" placeholder="Your name" required />
+          <textarea name="summary" rows="3" placeholder="Example: I have court in 5 days and I am missing school records." required></textarea>
+          <button type="submit">Ask Rita</button>
+        </form>
+        <div id="ritaLitePanel" class="status-panel"></div>
       </section>
     </main>
 

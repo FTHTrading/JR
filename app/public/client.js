@@ -14,6 +14,12 @@ function renderStatus(lines) {
   panel.innerHTML = lines.map((line) => `<div>${line}</div>`).join("");
 }
 
+function renderPanel(id, lines) {
+  const panel = document.getElementById(id);
+  if (!panel) return;
+  panel.innerHTML = lines.map((line) => `<div>${line}</div>`).join("");
+}
+
 async function getJson(url, options = {}) {
   const response = await fetch(url, options);
   if (!response.ok) {
@@ -81,6 +87,14 @@ async function createCase(payload) {
   });
 }
 
+async function lookupCase(payload) {
+  return getJson("/api/public/cases/lookup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
 async function persistTx(caseId, txHash) {
   return getJson(`/api/public/cases/${encodeURIComponent(caseId)}/tx`, {
     method: "PATCH",
@@ -125,6 +139,9 @@ async function anchorOnChain() {
 
 async function init() {
   await loadChainConfig();
+
+  const lookupForm = document.getElementById("lookupForm");
+  const ritaLiteForm = document.getElementById("ritaLiteForm");
 
   document.getElementById("connectWalletBtn").addEventListener("click", async () => {
     try {
@@ -171,6 +188,59 @@ async function init() {
       renderStatus([`Status error: ${error.message}`]);
     }
   });
+
+  if (lookupForm) {
+    lookupForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      renderPanel("lookupPanel", ["Checking case status..."]);
+
+      const formData = new FormData(event.target);
+      const payload = Object.fromEntries(formData.entries());
+
+      try {
+        const data = await lookupCase(payload);
+        renderPanel("lookupPanel", [
+          `Case ID: ${data.caseId}`,
+          `Status: ${data.status}`,
+          `Client: ${data.clientName}`,
+          `Matter: ${data.matterType}`,
+          data.txHash ? `Anchor TX: ${data.txHash}` : "Anchor TX: not anchored yet",
+          `Updated: ${new Date(data.updatedAt).toLocaleString()}`,
+        ]);
+      } catch (error) {
+        renderPanel("lookupPanel", [`Lookup error: ${error.message}`]);
+      }
+    });
+  }
+
+  if (ritaLiteForm) {
+    ritaLiteForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      renderPanel("ritaLitePanel", ["Rita is preparing guidance..."]);
+
+      const formData = new FormData(event.target);
+      const clientName = String(formData.get("clientName") || "").trim();
+      const summary = String(formData.get("summary") || "").trim();
+
+      const prompt = [
+        `Client: ${clientName}`,
+        `Summary: ${summary}`,
+        "Provide a calm, plain-language intake response with next steps and key documents to gather.",
+      ].join("\n");
+
+      try {
+        const data = await getJson("/api/persona/respond", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt, style: "professional" }),
+        });
+
+        renderPanel("ritaLitePanel", [data.reply || "No response generated."]);
+      } catch (error) {
+        renderPanel("ritaLitePanel", [`Rita error: ${error.message}`]);
+      }
+    });
+  }
 
   renderStatus([
     "Portal ready.",
