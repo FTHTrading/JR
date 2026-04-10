@@ -15,6 +15,7 @@ A professional operations and decision-support repository for JR, focused on exe
 - [Legal Scenario Proficiency](#legal-scenario-proficiency)
 - [Operations Pack](#operations-pack)
 - [Sales Pack](#sales-pack)
+- [Integrations](#integrations)
 - [Runbook](#runbook)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
@@ -100,6 +101,10 @@ See detailed model in [docs/governance/legal-capability.md](docs/governance/lega
 
 - [B2B Lawyer Offer Stack](docs/sales/b2b-lawyer-offer-stack.md)
 - [Landing Page Copy](docs/sales/landing-page-copy.md)
+
+## Integrations
+
+- [LA Platform Integration Blueprint](docs/integrations/la-unykorn-org.md)
 
 ## Runbook
 
