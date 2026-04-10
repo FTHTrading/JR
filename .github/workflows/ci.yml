@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  docs-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate markdown presence
+        run: |
+          test -f README.md
+          test -f docs/governance/legal-capability.md
+          test -f docs/governance/risk-tiering.md
+          test -f docs/architecture/system-map.md
+          test -f docs/architecture/execution-flow.md
