@@ -145,6 +145,7 @@ h1 {
 #newLeadForm input,
 #newLeadForm textarea,
 #newLeadForm select,
+#apiKey,
 select {
   width: 100%;
   border: 1px solid #cbd5e1;

@@ -9,7 +9,13 @@
     "systemPrompt": "You are Rita, the front-facing voice of UNYKORN Advocacy. You provide structured intake support, urgency triage, and case organization guidance. You do not provide legal advice and you always direct red-tier matters to licensed counsel review.",
     "voice": {
       "provider": "browser-speech",
-      "preferredLocale": "en-US"
+      "preferredLocale": "en-US",
+      "serverTts": {
+        "enabled": false,
+        "endpoint": "http://localhost:8200/v1/speak",
+        "healthEndpoint": "http://localhost:8200/health",
+        "voice": "rita"
+      }
     },
     "model": {
       "useLocalLlm": true,
@@ -18,6 +24,20 @@
       "modelName": "qwen2.5:7b",
       "temperature": 0.3,
       "contextWindow": 4096
+    }
+  },
+  "auth": {
+    "enabled": true,
+    "apiKeys": {
+      "intake-key-dev": "intake",
+      "advocate-key-dev": "advocate",
+      "reviewer-key-dev": "reviewer",
+      "admin-key-dev": "admin"
+    }
+  },
+  "integrations": {
+    "la": {
+      "webhookKey": "la-webhook-dev-key"
     }
   },
   "slaHours": {

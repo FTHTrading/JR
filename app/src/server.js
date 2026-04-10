@@ -9,6 +9,54 @@ const CONFIG_PATH = path.join(__dirname, "..", "app.config.json");
 
 const config = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8"));
 
+function nextLeadId(leads) {
+  const max = leads.reduce((highest, lead) => {
+    const n = Number(String(lead.id || "").replace("JR-", ""));
+    if (Number.isFinite(n)) return Math.max(highest, n);
+    return highest;
+  }, 0);
+  return `JR-${String(max + 1).padStart(4, "0")}`;
+}
+
+function mapExternalIntake(payload) {
+  const p = payload || {};
+  const urgency = String(p.urgency_precheck || p.urgency || "green").toLowerCase();
+  const safeUrgency = ["red", "amber", "green"].includes(urgency) ? urgency : "green";
+
+  return {
+    name: p.person_name || p.name || "Unnamed Lead",
+    state: p.state || "UNKNOWN",
+    caseType: p.case_type || "unknown",
+    urgency: safeUrgency,
+    ownerRole: config.defaultRole,
+    summary: p.narrative_raw || p.summary || "",
+    deadline: p.deadlines_raw || "",
+    source: p.lead_source || "la.unykorn.org",
+  };
+}
+
+function getRoleFromApiKey(req) {
+  const auth = config.auth || {};
+  if (!auth.enabled) return "admin";
+  const apiKey = req.headers["x-jr-key"];
+  if (!apiKey) return null;
+  return (auth.apiKeys || {})[String(apiKey)] || null;
+}
+
+function requireRole(allowedRoles) {
+  return (req, res, next) => {
+    const role = getRoleFromApiKey(req);
+    if (!role) {
+      return res.status(401).json({ error: "Missing or invalid x-jr-key" });
+    }
+    if (!allowedRoles.includes(role)) {
+      return res.status(403).json({ error: `Role ${role} is not authorized for this action` });
+    }
+    req.userRole = role;
+    next();
+  };
+}
+
 function buildFallbackResponse(message) {
   const lower = String(message || "").toLowerCase();
 
@@ -68,11 +116,92 @@ async function generateRitaResponse(message) {
   return buildFallbackResponse(message);
 }
 
+async function getModelHealth() {
+  const modelCfg = (config.persona || {}).model || {};
+  if (!modelCfg.useLocalLlm || !modelCfg.healthEndpoint) {
+    return { mode: "fallback", gpu: false, online: true };
+  }
+
+  try {
+    const response = await fetch(modelCfg.healthEndpoint);
+    return { mode: "gpu", gpu: true, online: response.ok };
+  } catch (error) {
+    return { mode: "gpu", gpu: true, online: false };
+  }
+}
+
+async function getTtsHealth() {
+  const voice = ((config.persona || {}).voice || {}).serverTts || {};
+  if (!voice.enabled || !voice.healthEndpoint) {
+    return { enabled: false, online: false };
+  }
+
+  try {
+    const response = await fetch(voice.healthEndpoint);
+    return { enabled: true, online: response.ok };
+  } catch (error) {
+    return { enabled: true, online: false };
+  }
+}
+
+async function synthesizeVoice(text) {
+  const voice = ((config.persona || {}).voice || {}).serverTts || {};
+  if (!voice.enabled || !voice.endpoint) {
+    return null;
+  }
+
+  const response = await fetch(voice.endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, voice: voice.voice || "rita" }),
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const data = await response.json();
+  if (!data || typeof data.audioBase64 !== "string") {
+    return null;
+  }
+
+  return {
+    audioBase64: data.audioBase64,
+    mimeType: data.mimeType || "audio/wav",
+  };
+}
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "..", "public")));
 
 app.get("/api/config", (req, res) => {
-  res.json(config);
+  const safeConfig = {
+    appName: config.appName,
+    defaultRole: config.defaultRole,
+    laEndpoint: config.laEndpoint,
+    persona: {
+      name: (config.persona || {}).name,
+      role: (config.persona || {}).role,
+      tone: (config.persona || {}).tone,
+      voice: {
+        provider: (((config.persona || {}).voice || {}).provider) || "browser-speech",
+        preferredLocale: (((config.persona || {}).voice || {}).preferredLocale) || "en-US",
+      },
+    },
+    auth: {
+      enabled: Boolean((config.auth || {}).enabled),
+    },
+    slaHours: config.slaHours,
+  };
+  res.json(safeConfig);
+});
+
+app.get("/api/auth/whoami", (req, res) => {
+  const role = getRoleFromApiKey(req);
+  if (!role) {
+    return res.status(401).json({ authenticated: false });
+  }
+  return res.json({ authenticated: true, role });
 });
 
 app.get("/api/persona", (req, res) => {
@@ -89,23 +218,9 @@ app.get("/api/persona", (req, res) => {
 });
 
 app.get("/api/persona/health", async (req, res) => {
-  const persona = config.persona || {};
-  const modelCfg = persona.model || {};
-
-  if (!modelCfg.useLocalLlm || !modelCfg.healthEndpoint) {
-    return res.json({ mode: "fallback", gpu: false, online: true });
-  }
-
-  try {
-    const response = await fetch(modelCfg.healthEndpoint);
-    if (!response.ok) {
-      return res.json({ mode: "gpu", gpu: true, online: false });
-    }
-
-    return res.json({ mode: "gpu", gpu: true, online: true });
-  } catch (error) {
-    return res.json({ mode: "gpu", gpu: true, online: false });
-  }
+  const model = await getModelHealth();
+  const tts = await getTtsHealth();
+  return res.json({ ...model, tts });
 });
 
 app.post("/api/persona/respond", async (req, res) => {
@@ -123,12 +238,30 @@ app.post("/api/persona/respond", async (req, res) => {
   });
 });
 
-app.get("/api/dashboard", (req, res) => {
+app.post("/api/persona/speak", async (req, res) => {
+  const text = String((req.body || {}).text || "").trim();
+  if (!text) {
+    return res.status(400).json({ error: "Text is required" });
+  }
+
+  try {
+    const audio = await synthesizeVoice(text);
+    if (audio) {
+      return res.json({ mode: "server-audio", ...audio });
+    }
+
+    return res.json({ mode: "browser-tts" });
+  } catch (error) {
+    return res.json({ mode: "browser-tts" });
+  }
+});
+
+app.get("/api/dashboard", requireRole(["intake", "advocate", "reviewer", "admin"]), (req, res) => {
   const leads = readLeads();
   res.json({ summary: summarize(leads), leads });
 });
 
-app.get("/api/leads", (req, res) => {
+app.get("/api/leads", requireRole(["intake", "advocate", "reviewer", "admin"]), (req, res) => {
   const role = (req.query.role || "all").toLowerCase();
   const urgency = (req.query.urgency || "all").toLowerCase();
   let leads = readLeads();
@@ -144,13 +277,12 @@ app.get("/api/leads", (req, res) => {
   res.json(leads);
 });
 
-app.post("/api/leads", (req, res) => {
+app.post("/api/leads", requireRole(["intake", "admin"]), (req, res) => {
   const leads = readLeads();
   const payload = req.body || {};
 
-  const nextIdNum = leads.length + 1;
   const newLead = {
-    id: `JR-${String(nextIdNum).padStart(4, "0")}`,
+    id: nextLeadId(leads),
     name: payload.name || "Unnamed Lead",
     state: payload.state || "UNKNOWN",
     caseType: payload.caseType || "unknown",
@@ -169,7 +301,37 @@ app.post("/api/leads", (req, res) => {
   res.status(201).json(newLead);
 });
 
-app.patch("/api/leads/:id", (req, res) => {
+app.post("/api/integrations/la/intake", (req, res) => {
+  const expectedKey = (((config.integrations || {}).la || {}).webhookKey) || "";
+  const receivedKey = String(req.headers["x-la-webhook-key"] || "");
+
+  if (!expectedKey || receivedKey !== expectedKey) {
+    return res.status(401).json({ error: "Invalid LA webhook key" });
+  }
+
+  const leads = readLeads();
+  const payload = mapExternalIntake(req.body || {});
+  const newLead = {
+    id: nextLeadId(leads),
+    name: payload.name,
+    state: payload.state,
+    caseType: payload.caseType,
+    urgency: payload.urgency,
+    status: "new",
+    ownerRole: payload.ownerRole,
+    summary: payload.summary,
+    createdAt: new Date().toISOString(),
+    deadline: payload.deadline,
+    packetReady: false,
+    source: payload.source,
+  };
+
+  leads.unshift(newLead);
+  writeLeads(leads);
+  return res.status(201).json({ lead: newLead });
+});
+
+app.patch("/api/leads/:id", requireRole(["intake", "advocate", "reviewer", "admin"]), (req, res) => {
   const leads = readLeads();
   const idx = leads.findIndex((lead) => lead.id === req.params.id);
 
@@ -186,7 +348,7 @@ app.patch("/api/leads/:id", (req, res) => {
   return res.json(leads[idx]);
 });
 
-app.post("/api/packets/:id/generate", (req, res) => {
+app.post("/api/packets/:id/generate", requireRole(["advocate", "reviewer", "admin"]), (req, res) => {
   const leads = readLeads();
   const idx = leads.findIndex((lead) => lead.id === req.params.id);
 

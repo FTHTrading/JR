@@ -137,6 +137,13 @@ The repository now includes a working application tailored to your operating mod
 4. Open `http://localhost:4099` for the public site and Rita
 5. Open `http://localhost:4099/ops` for operations console
 
+### Auth and Integrations
+
+- Ops APIs now require `x-jr-key` when auth is enabled.
+- Development keys are in `app/app.config.json` and should be replaced before production use.
+- LA webhook ingestion endpoint: `POST /api/integrations/la/intake` with header `x-la-webhook-key`.
+- Rita server voice endpoint: `POST /api/persona/speak` (browser TTS fallback if server TTS is unavailable).
+
 ## Runbook
 
 1. Classify request risk tier.

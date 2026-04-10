@@ -1,6 +1,24 @@
-async function fetchJson(url, options) {
-  const response = await fetch(url, options);
-  if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+let staffApiKey = localStorage.getItem("jrApiKey") || "";
+
+function authHeaders(extra = {}) {
+  const headers = { ...extra };
+  if (staffApiKey) {
+    headers["x-jr-key"] = staffApiKey;
+  }
+  return headers;
+}
+
+async function fetchJson(url, options = {}) {
+  const merged = {
+    ...options,
+    headers: authHeaders(options.headers || {}),
+  };
+
+  const response = await fetch(url, merged);
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Request failed: ${response.status} ${errorText}`);
+  }
   return response.json();
 }
 
@@ -79,6 +97,36 @@ async function init() {
   const config = await fetchJson("/api/config");
   status.textContent = `Online • default role: ${config.defaultRole}`;
 
+  const apiKeyInput = document.getElementById("apiKey");
+  const authState = document.getElementById("authState");
+  const authBtn = document.getElementById("authBtn");
+  apiKeyInput.value = staffApiKey;
+
+  async function refreshAuthState() {
+    if (!staffApiKey) {
+      authState.textContent = "Not authenticated";
+      return;
+    }
+
+    try {
+      const who = await fetchJson("/api/auth/whoami");
+      authState.textContent = `Authenticated as ${who.role}`;
+    } catch (error) {
+      authState.textContent = "Invalid API key";
+    }
+  }
+
+  authBtn.addEventListener("click", async () => {
+    staffApiKey = apiKeyInput.value.trim();
+    localStorage.setItem("jrApiKey", staffApiKey);
+    await refreshAuthState();
+    try {
+      await refreshLeads();
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
   document.getElementById("refresh").addEventListener("click", refreshLeads);
 
   document.getElementById("newLeadForm").addEventListener("submit", async (event) => {
@@ -96,6 +144,7 @@ async function init() {
     await refreshLeads();
   });
 
+  await refreshAuthState();
   await refreshLeads();
 }
 

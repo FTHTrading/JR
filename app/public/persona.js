@@ -20,6 +20,34 @@ function speak(text) {
   window.speechSynthesis.speak(utter);
 }
 
+async function speakWithServer(text) {
+  if (!voiceEnabled) return false;
+
+  try {
+    const response = await fetch("/api/persona/speak", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const data = await response.json();
+    if (data.mode !== "server-audio" || !data.audioBase64) {
+      return false;
+    }
+
+    const mimeType = data.mimeType || "audio/wav";
+    const audio = new Audio(`data:${mimeType};base64,${data.audioBase64}`);
+    await audio.play();
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 async function loadPersonaHealth() {
   const healthEl = document.getElementById("ritaHealth");
   try {
@@ -125,7 +153,10 @@ async function init() {
     try {
       const data = await askRita(message);
       appendMessage("Rita", data.reply);
-      speak(data.reply);
+      const usedServerAudio = await speakWithServer(data.reply);
+      if (!usedServerAudio) {
+        speak(data.reply);
+      }
     } catch (error) {
       appendMessage("System", "Rita is temporarily unavailable. Please try again.");
     }
