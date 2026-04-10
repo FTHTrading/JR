@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UNYKORN Advocacy | Rita Front Desk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/site.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <nav class="nav">
+        <div class="brand">UNYKORN // ADVOCACY</div>
+        <div class="nav-links">
+          <a href="https://la.unykorn.org/intake" target="_blank" rel="noreferrer">Free Case Review</a>
+          <a href="/ops">Ops Console</a>
+        </div>
+      </nav>
+
+      <div class="hero-content">
+        <p class="est">EST. MMXXVI</p>
+        <h1>AI-Powered Legal Advocacy and Case Support</h1>
+        <p>
+          Real human triage. Evidence organization. Timeline construction.
+          Rita is your front-desk voice persona for urgent intake and case
+          structuring before attorney escalation.
+        </p>
+        <div class="hero-cta">
+          <a class="btn primary" href="https://la.unykorn.org/intake" target="_blank" rel="noreferrer">Get Free Review</a>
+          <a class="btn secondary" href="#rita">Talk to Rita</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="stat-band">
+        <article>
+          <strong>26</strong>
+          <span>AI Agents</span>
+        </article>
+        <article>
+          <strong>x402</strong>
+          <span>Pay Protocol</span>
+        </article>
+        <article>
+          <strong>7332</strong>
+          <span>Apostle Chain</span>
+        </article>
+        <article>
+          <strong>24/7</strong>
+          <span>Coverage</span>
+        </article>
+      </section>
+
+      <section id="rita" class="rita-panel">
+        <div class="rita-head">
+          <h2>Rita Voice Concierge</h2>
+          <div id="ritaHealth" class="health">Checking GPU mode...</div>
+        </div>
+
+        <p class="rita-copy">
+          Tell Rita what happened in plain language. She will structure your
+          intake into timeline, evidence, and escalation next steps.
+        </p>
+
+        <div class="chat-window" id="chatWindow"></div>
+
+        <form id="ritaForm" class="rita-form">
+          <textarea id="ritaInput" rows="4" placeholder="Describe your situation, where it happened, and your next deadline."></textarea>
+          <div class="rita-actions">
+            <button type="submit" class="btn primary">Ask Rita</button>
+            <button type="button" id="voiceToggle" class="btn secondary">Voice Reply: ON</button>
+            <button type="button" id="listenBtn" class="btn secondary">Start Mic</button>
+          </div>
+        </form>
+
+        <p class="disclaimer">
+          Rita is an advocacy support persona and not a law firm representative.
+          For legal advice, consult licensed counsel.
+        </p>
+      </section>
+
+      <section class="cards">
+        <article class="card red">
+          <h3>Red Tier</h3>
+          <p>Child safety, criminal exposure, imminent housing loss, rights interference.</p>
+        </article>
+        <article class="card amber">
+          <h3>Amber Tier</h3>
+          <p>Serious disputes needing structured packet build in 24 hours.</p>
+        </article>
+        <article class="card green">
+          <h3>Green Tier</h3>
+          <p>General guidance and non-urgent documentation workflows.</p>
+        </article>
+      </section>
+    </main>
+
+    <script src="/persona.js" defer></script>
+  </body>
+</html>

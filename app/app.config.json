@@ -2,6 +2,24 @@
   "appName": "JR Ops Console",
   "defaultRole": "intake",
   "laEndpoint": "https://la.unykorn.org/intake",
+  "persona": {
+    "name": "Rita",
+    "role": "UNYKORN Advocacy Voice Concierge",
+    "tone": "Calm, direct, urgent when needed, trauma-aware",
+    "systemPrompt": "You are Rita, the front-facing voice of UNYKORN Advocacy. You provide structured intake support, urgency triage, and case organization guidance. You do not provide legal advice and you always direct red-tier matters to licensed counsel review.",
+    "voice": {
+      "provider": "browser-speech",
+      "preferredLocale": "en-US"
+    },
+    "model": {
+      "useLocalLlm": true,
+      "endpoint": "http://localhost:11434/api/generate",
+      "healthEndpoint": "http://localhost:11434/api/tags",
+      "modelName": "qwen2.5:7b",
+      "temperature": 0.3,
+      "contextWindow": 4096
+    }
+  },
   "slaHours": {
     "red": 6,
     "amber": 24,

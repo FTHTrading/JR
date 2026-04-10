@@ -127,13 +127,15 @@ The repository now includes a working application tailored to your operating mod
 - Reviewer role for legal-safe escalation control
 - Lead triage by urgency (red/amber/green)
 - Packet generation endpoint with boundary disclaimers
+- Front-facing UNYKORN page with Rita persona at root route
 
 ### Local Run
 
 1. Change directory to `app`
 2. Install dependencies with `npm install`
 3. Start with `npm start`
-4. Open `http://localhost:4099`
+4. Open `http://localhost:4099` for the public site and Rita
+5. Open `http://localhost:4099/ops` for operations console
 
 ## Runbook
 
