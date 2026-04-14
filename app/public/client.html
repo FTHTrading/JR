@@ -35,12 +35,23 @@
           <input name="phone" placeholder="Phone (optional)" />
           <select name="caseType" required>
             <option value="">Select case type</option>
-            <option value="family_safety">Family safety</option>
-            <option value="criminal">Criminal</option>
-            <option value="housing">Housing</option>
-            <option value="civil_rights">Civil rights</option>
-            <option value="post_conviction">Post-conviction</option>
-            <option value="other">Other</option>
+            <optgroup label="Domestic (US)">
+              <option value="family_safety">Family safety</option>
+              <option value="criminal">Criminal</option>
+              <option value="housing">Housing</option>
+              <option value="civil_rights">Civil rights</option>
+              <option value="post_conviction">Post-conviction</option>
+              <option value="other">Other</option>
+            </optgroup>
+            <optgroup label="International / Sovereign">
+              <option value="international_arbitration">International arbitration (ICC / LCIA / UNCITRAL)</option>
+              <option value="icsid_bit">ICSID / Bilateral investment treaty (BIT) dispute</option>
+              <option value="sovereign_asset_recovery">Sovereign asset recovery</option>
+              <option value="cross_border_regulatory">Cross-border regulatory enforcement defense</option>
+              <option value="sovereign_debt">Sovereign debt restructuring</option>
+              <option value="treaty_dispute">Treaty / international law dispute</option>
+              <option value="cross_border_crypto_fraud">Cross-border crypto-asset fraud recovery</option>
+            </optgroup>
           </select>
           <input name="deadline" type="date" />
           <textarea name="summary" rows="5" placeholder="Describe what happened, where, and any urgent deadlines." required></textarea>
